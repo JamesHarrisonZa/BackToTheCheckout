@@ -4,15 +4,17 @@ public class Checkout
 {
     public double Total { get; internal set; }
 
-    private IEnumerable<Rule> _rules;
+    private IDictionary<string, double> _rules;
 
-	public Checkout(IEnumerable<Rule> rules)
+	public Checkout(IDictionary<string, double> rules)
 	{
 		this._rules = rules;
 	}
 
 	public void Scan(string item)
 	{
-		Total = 50; ;
+		var itemUnitPrice = _rules[item];
+
+        Total += itemUnitPrice;
 	}
 }
