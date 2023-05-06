@@ -18,20 +18,25 @@ public class Checkout
 
     public void Scan(Item item)
     {
-        if (!_scannedItems.ContainsKey(item))
-            _scannedItems.Add(item, 0);
-        _scannedItems[item]++;
+        AddToScannedItems(item);
 
         if (HasSpecial(item) && EligibleForSpecial(item))
-        {
-            var discountedPrice = GetDiscountedPrice(item);
-            Total += discountedPrice;
-        }
+            Total += GetDiscountedPrice(item);
         else
-        {
-            var itemUnitPrice = _rules[item].UnitPrice;
-            Total += itemUnitPrice;
-        }
+            Total += GetItemUnitPrice(item);
+    }
+
+    private void AddToScannedItems(Item item)
+    {
+        if (!_scannedItems.ContainsKey(item))
+            _scannedItems.Add(item, 0);
+
+        _scannedItems[item]++;
+    }
+
+    private double GetItemUnitPrice(Item item)
+    {
+        return _rules[item].UnitPrice;
     }
 
     private bool HasSpecial(Item item)
