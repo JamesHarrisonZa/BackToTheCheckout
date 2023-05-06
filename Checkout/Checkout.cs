@@ -22,12 +22,9 @@ public class Checkout
             _scannedItems.Add(item, 0);
         _scannedItems[item]++;
 
-        //HasSpecial && TriggersSpecial
-        if (_rules[item]?.Special != null && _scannedItems[item] % _rules[item]?.Special.Quantity == 0)
+        if (HasSpecial(item) && EligibleForSpecial(item))
         {
-            var specialPrice = _rules[item].Special.Price;
-            var discountedPrice = -1 * (_rules[item].UnitPrice * (_rules[item].Special.Quantity - 1)) + specialPrice;
-
+            var discountedPrice = GetDiscountedPrice(item);
             Total += discountedPrice;
         }
         else
@@ -35,5 +32,32 @@ public class Checkout
             var itemUnitPrice = _rules[item].UnitPrice;
             Total += itemUnitPrice;
         }
+    }
+
+    private bool HasSpecial(Item item)
+    {
+        return _rules[item]?.Special != null;
+    }
+
+    private bool EligibleForSpecial(Item item)
+    {
+        return _scannedItems[item] % _rules[item]?.Special.Quantity == 0;
+    }
+
+    private double GetDiscountedPrice(Item item)
+    {
+        var specialPrice = GetItemsSpecialPrice(item);
+
+        return -1 * GetPriceAccountedForInTotal(item) + specialPrice;
+    }
+
+    private double GetItemsSpecialPrice(Item item)
+    {
+        return _rules[item].Special.Price;
+    }
+
+    private double GetPriceAccountedForInTotal(Item item)
+    {
+        return (_rules[item].UnitPrice * (_rules[item].Special.Quantity - 1));
     }
 }
