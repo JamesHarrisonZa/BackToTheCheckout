@@ -39,12 +39,12 @@ public class CheckoutTests
 
     [Theory]
     [InlineData(new[] { Item.A, Item.A }, 100)]
-    //[InlineData(new[] { Item.A, Item.A, Item.A }, 130)]
-    //[InlineData(new[] { Item.A, Item.A, Item.A, Item.A }, 180)]
+    [InlineData(new[] { Item.A, Item.A, Item.A }, 130)]
+    [InlineData(new[] { Item.A, Item.A, Item.A, Item.A }, 180)]
     public void Scan_WithSpecials_AppliesDiscount(Item[] goods, double expectedTotal)
     {
         var rules = new Dictionary<Item, ItemPrice>() {
-            { Item.A, new ItemPrice(50) },
+            { Item.A, new ItemPrice(50, new Special(3, 130)) },
         };
 
         var checkout = new Checkout(rules);

@@ -10,20 +10,26 @@ public enum Item
 
 public class ItemPrice
 {
+    public double UnitPrice { get; internal set; }
+
+    public Special? Special { get; internal set; }
+
     public ItemPrice(double unitPrice, Special? special = null)
     {
         UnitPrice = unitPrice;
         Special = special;
     }
-
-    public double UnitPrice { get; internal set; }
-
-    public Special? Special { get; internal set; }
 }
 
 public class Special
 {
     public int Quantity { get; internal set; }
 
-    public double SpecialPrice { get; internal set; }
+    public double Price { get; internal set; }
+
+    public Special(int quantity, double price)
+    {
+        Quantity = quantity;
+        Price = price;
+    }
 }
