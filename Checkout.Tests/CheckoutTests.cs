@@ -32,5 +32,20 @@ public class CheckoutTests
         checkout.Scan("A");
 
         Assert.Equal(100, checkout.Total);
-    }
+	}
+
+	[Fact]
+	public void Scan_TwoItems_ReturnsSumOfUnitPrices()
+	{
+		var rules = new Dictionary<string, double>() { 
+            { "A", 50 }, 
+            { "B", 25 }, 
+        };
+
+		var checkout = new Checkout(rules);
+		checkout.Scan("A");
+		checkout.Scan("B");
+
+		Assert.Equal(75, checkout.Total);
+	}
 }
