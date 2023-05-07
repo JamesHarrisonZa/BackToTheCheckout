@@ -64,4 +64,30 @@ public class CheckoutTests
 
         Assert.Equal(expectedTotal, checkout.Total);
     }
+
+    // When I got to this point I found I can use the same rule structure to cover the 2 for 1 scenario
+
+    [Theory]
+    [InlineData(new[] { Item.A, Item.A, Item.A }, 100)]
+    [InlineData(new[] { Item.B, Item.B, Item.B }, 60)]
+    [InlineData(new[] { Item.C, Item.C, Item.C }, 40)]
+    [InlineData(new[] { Item.D, Item.D, Item.D }, 30)]
+    public void Scan_WithTwoForOneDeal_DoesNotChargeThirdItem(Item[] goods, double expectedTotal)
+    {
+        var rules = new Dictionary<Item, ItemPrice>() {
+            { Item.A, new ItemPrice(50, new Special(3, 100)) },
+            { Item.B, new ItemPrice(30, new Special(3, 60)) },
+            { Item.C, new ItemPrice(20, new Special(3, 40)) },
+            { Item.D, new ItemPrice(15, new Special(3, 30)) },
+        };
+
+        var checkout = new Checkout(rules);
+
+        foreach (var item in goods)
+        {
+            checkout.Scan(item);
+        }
+
+        Assert.Equal(expectedTotal, checkout.Total);
+    }
 }
