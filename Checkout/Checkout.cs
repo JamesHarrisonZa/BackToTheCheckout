@@ -4,11 +4,11 @@ namespace Checkout;
 
 public class Checkout
 {
-    public double Total { get; internal set; }
+    public double Total { get; private set; }
 
-    private IDictionary<Item, ItemPrice> _rules;
+    private readonly IDictionary<Item, ItemPrice> _rules;
 
-    private IDictionary<Item, int> _scannedItems;
+    private readonly IDictionary<Item, int> _scannedItems;
 
     public Checkout(IDictionary<Item, ItemPrice> rules)
     {
@@ -20,7 +20,7 @@ public class Checkout
     {
         AddToScannedItems(item);
 
-        if (HasSpecial(item) && EligibleForSpecial(item))
+        if (EligibleForDiscount(item))
             Total += GetDiscountedPrice(item);
         else
             Total += GetItemUnitPrice(item);
@@ -39,14 +39,21 @@ public class Checkout
         return _rules[item].UnitPrice;
     }
 
-    private bool HasSpecial(Item item)
+    private bool EligibleForDiscount(Item item)
     {
-        return _rules[item]?.Special != null;
+        if (!ItemOnSpecial(item))
+            return false;
+
+        var scannedItemQuantity = _scannedItems[item];
+        var quantityEligibleForDiscount = _rules[item].Special!.Quantity;
+        var itemQuantityMatchesSpecial = scannedItemQuantity % quantityEligibleForDiscount == 0;
+
+        return itemQuantityMatchesSpecial;
     }
 
-    private bool EligibleForSpecial(Item item)
+    private bool ItemOnSpecial(Item item)
     {
-        return _scannedItems[item] % _rules[item]?.Special.Quantity == 0;
+        return _rules[item].Special != null;
     }
 
     private double GetDiscountedPrice(Item item)
@@ -58,11 +65,11 @@ public class Checkout
 
     private double GetItemsSpecialPrice(Item item)
     {
-        return _rules[item].Special.Price;
+        return _rules[item].Special!.Price;
     }
 
     private double GetPriceAccountedForInTotal(Item item)
     {
-        return (_rules[item].UnitPrice * (_rules[item].Special.Quantity - 1));
+        return _rules[item].UnitPrice * (_rules[item].Special!.Quantity - 1);
     }
 }
