@@ -10,6 +10,8 @@ public class Checkout
 
     private readonly IDictionary<Item, int> _scannedItems;
 
+    private const int RoundingPrecision = 2;
+
     public Checkout(IDictionary<Item, ItemPrice> rules)
     {
         _rules = rules;
@@ -28,10 +30,14 @@ public class Checkout
 
     public void Scan(Item item, double weight)
     {
-        var itemPrice = weight * GetItemUnitPrice(item);
-        var itemPriceRounded = Math.Round(itemPrice, 2);
+        Total += GetPriceForWeight(item, weight);
+    }
 
-        Total += itemPriceRounded;
+    private double GetPriceForWeight(Item item, double weight)
+    {
+        var itemPrice = weight * GetItemUnitPrice(item);
+        var itemPriceRounded = Math.Round(itemPrice, RoundingPrecision);
+        return itemPriceRounded;
     }
 
     private void AddToScannedItems(Item item)
