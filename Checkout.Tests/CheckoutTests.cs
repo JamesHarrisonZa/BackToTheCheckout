@@ -37,7 +37,7 @@ public class CheckoutTests
         Assert.Equal(expectedTotal, checkout.Total);
     }
 
-    [Theory(Skip = "WIP Changing the design")]
+    [Theory]
     [InlineData(new[] { Item.A, Item.A }, 100)]
     [InlineData(new[] { Item.A, Item.A, Item.A }, 130)] //EligibleForSpecial A x1
     [InlineData(new[] { Item.A, Item.A, Item.A, Item.A }, 180)]

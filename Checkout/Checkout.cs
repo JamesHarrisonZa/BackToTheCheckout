@@ -45,7 +45,21 @@ public class Checkout
 
         foreach (var (item, itemQty) in _scannedItemsCount)
         {
-            total += itemQty * GetItemUnitPrice(item);
+
+            if (IsOnSpecial(item))
+            {
+                var unitPrice = _rules[item].UnitPrice;
+                var specialQty = _rules[item].Special!.Quantity;
+                var specialPrice = _rules[item].Special!.Price;
+
+                int specialCount = itemQty / specialQty;
+                var nonSpecialCount = itemQty % specialQty;
+
+                total += specialCount * specialPrice;
+                total += nonSpecialCount * unitPrice;
+            }
+            else
+                total += itemQty * GetItemUnitPrice(item);
         }
 
         return total;
@@ -80,10 +94,10 @@ public class Checkout
     //    return itemQuantityMatchesSpecial;
     //}
 
-    //private bool IsOnSpecial(Item item)
-    //{
-    //    return _rules[item].Special != null;
-    //}
+    private bool IsOnSpecial(Item item)
+    {
+        return _rules[item].Special != null;
+    }
 
     //private double GetDiscountedPrice(Item item)
     //{
