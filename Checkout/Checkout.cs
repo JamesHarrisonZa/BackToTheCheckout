@@ -24,8 +24,6 @@ public class Checkout
     {
         AddToScannedItems(item);
 
-
-
         //if (IsEligibleForDiscount(item))
         //    Total += GetDiscountedPrice(item);
         //else
@@ -47,19 +45,9 @@ public class Checkout
         {
 
             if (IsOnSpecial(item))
-            {
-                var unitPrice = _rules[item].UnitPrice;
-                var specialQty = _rules[item].Special!.Quantity;
-                var specialPrice = _rules[item].Special!.Price;
-
-                int specialCount = itemQty / specialQty;
-                var nonSpecialCount = itemQty % specialQty;
-
-                total += specialCount * specialPrice;
-                total += nonSpecialCount * unitPrice;
-            }
+                total += GetItemTotalWithSpecial(item, itemQty);
             else
-                total += itemQty * GetItemUnitPrice(item);
+                total += GetItemTotal(item, itemQty);
         }
 
         return total;
@@ -80,10 +68,22 @@ public class Checkout
 
         _scannedItemsWeight[item]+= weight;
     }
-
-    private double GetItemUnitPrice(Item item)
+    
+    private double GetItemTotalWithSpecial(Item item, int itemQty)
     {
-        return _rules[item].UnitPrice;
+        var unitPrice = _rules[item].UnitPrice;
+        var specialQty = _rules[item].Special!.Quantity;
+        var specialPrice = _rules[item].Special!.Price;
+
+        int specialCount = itemQty / specialQty;
+        var remainingCount = itemQty % specialQty;
+
+        return specialCount * specialPrice + remainingCount * unitPrice;
+    }
+
+    private double GetItemTotal(Item item, int itemQty)
+    {
+        return itemQty * _rules[item].UnitPrice;
     }
 
     //private bool IsEligibleForDiscount(Item item, int quantity)
