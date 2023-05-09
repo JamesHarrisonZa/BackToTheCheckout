@@ -26,6 +26,11 @@ public class Checkout
             Total += GetItemUnitPrice(item);
     }
 
+    public void Scan(Item item, double weight)
+    {
+        Total += weight *GetItemUnitPrice(item);
+    }
+
     private void AddToScannedItems(Item item)
     {
         if (!_scannedItems.ContainsKey(item))

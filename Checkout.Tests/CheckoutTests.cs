@@ -90,4 +90,21 @@ public class CheckoutTests
 
         Assert.Equal(expectedTotal, checkout.Total);
     }
+
+    // Scenario "1.99 per pound"
+    [Fact]
+    public void Scan_WithPricePerPound_AddsRelativePrice()
+    {
+
+        var rules = new Dictionary<Item, ItemPrice>() {
+            { Item.A, new ItemPrice(1.99) }, //per pound is my unit for this item
+        };
+
+        var checkout = new Checkout(rules);
+        
+        checkout.Scan(Item.A, 1);
+
+        var expectedTotal = 1.99d;
+        Assert.Equal(expectedTotal, checkout.Total);
+    }
 }
