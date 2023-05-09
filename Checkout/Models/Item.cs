@@ -11,7 +11,6 @@ public enum Item
 public class ItemPrice
 {
     public double UnitPrice { get; internal set; }
-    public bool isPricedByWeight { get; internal set; }
 
     public Special? Special { get; internal set; }
 
