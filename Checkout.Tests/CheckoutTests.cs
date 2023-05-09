@@ -67,7 +67,7 @@ public class CheckoutTests
 
     // When I got to this point I found I can use the same rule structure to cover the 2 for 1 scenario
 
-    [Theory(Skip = "WIP Changing the design")]
+    [Theory]
     [InlineData(new[] { Item.A, Item.A, Item.A }, 100)]
     [InlineData(new[] { Item.B, Item.B, Item.B }, 60)]
     [InlineData(new[] { Item.C, Item.C, Item.C }, 40)]
