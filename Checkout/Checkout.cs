@@ -23,18 +23,11 @@ public class Checkout
     public void Scan(Item item)
     {
         AddToScannedItems(item);
-
-        //if (IsEligibleForDiscount(item))
-        //    Total += GetDiscountedPrice(item);
-        //else
-        //    Total += GetItemUnitPrice(item);
     }
 
     public void Scan(Item item, double weight)
     {
         AddToScannedItems(item, weight);
-
-        //Total += GetPriceForWeight(item, weight);
     }
 
     private double CalculateTotal()
@@ -43,11 +36,15 @@ public class Checkout
 
         foreach (var (item, itemQty) in _scannedItemsCount)
         {
-
             if (IsOnSpecial(item))
                 total += GetItemTotalWithSpecial(item, itemQty);
             else
                 total += GetItemTotal(item, itemQty);
+        }
+
+        foreach (var (item, itemWeight) in _scannedItemsWeight)
+        {
+            total += GetItemTotal(item, itemWeight);
         }
 
         return total;
@@ -86,40 +83,15 @@ public class Checkout
         return itemQty * _rules[item].UnitPrice;
     }
 
-    //private bool IsEligibleForDiscount(Item item, int quantity)
-    //{
-    //    var quantityEligibleForDiscount = _rules[item].Special!.Quantity;
-    //    var itemQuantityMatchesSpecial = quantity % quantityEligibleForDiscount == 0;
-
-    //    return itemQuantityMatchesSpecial;
-    //}
+    private double GetItemTotal(Item item, double itemWeight)
+    {
+        var itemPrice = itemWeight * _rules[item].UnitPrice;
+        var itemPriceRounded = Math.Round(itemPrice, RoundingPrecision);
+        return itemPriceRounded;
+    }
 
     private bool IsOnSpecial(Item item)
     {
         return _rules[item].Special != null;
     }
-
-    //private double GetDiscountedPrice(Item item)
-    //{
-    //    var specialPrice = GetItemsSpecialPrice(item);
-
-    //    return -1 * GetPriceAccountedForInTotal(item) + specialPrice;
-    //}
-
-    //private double GetItemsSpecialPrice(Item item)
-    //{
-    //    return _rules[item].Special!.Price;
-    //}
-
-    //private double GetPriceAccountedForInTotal(Item item)
-    //{
-    //    return _rules[item].UnitPrice * (_rules[item].Special!.Quantity - 1);
-    //}
-
-    //private double GetPriceForWeight(Item item, double weight)
-    //{
-    //    var itemPrice = weight * GetItemUnitPrice(item);
-    //    var itemPriceRounded = Math.Round(itemPrice, RoundingPrecision);
-    //    return itemPriceRounded;
-    //}
 }

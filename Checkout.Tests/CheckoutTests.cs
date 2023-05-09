@@ -92,7 +92,7 @@ public class CheckoutTests
     }
 
     // Scenario "1.99 per pound"
-    [Theory(Skip = "WIP Changing the design")]
+    [Theory]
     [InlineData(Item.A, 1, 1.99)]
     [InlineData(Item.A, 1.5, 2.98)] //Rounded to 2 decimal points
     [InlineData(Item.A, 2, 3.98)]
