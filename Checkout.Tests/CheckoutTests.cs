@@ -13,6 +13,7 @@ public class CheckoutTests
         Assert.Equal(0, checkout.Total);
     }
 
+    // Scenario no specials. Just unit prices.
     [Theory]
     [InlineData(new[] { Item.A }, 50)]
     [InlineData(new[] { Item.A, Item.B }, 80)]
@@ -37,6 +38,7 @@ public class CheckoutTests
         Assert.Equal(expectedTotal, checkout.Total);
     }
 
+    // Scenario "Three for a dollar" type specials.
     [Theory]
     [InlineData(new[] { Item.A, Item.A }, 100)]
     [InlineData(new[] { Item.A, Item.A, Item.A }, 130)] //EligibleForSpecial A x1
@@ -65,8 +67,8 @@ public class CheckoutTests
         Assert.Equal(expectedTotal, checkout.Total);
     }
 
-    // When I got to this point I found I can use the same rule structure to cover the 2 for 1 scenario
-
+    // Scenario "2 for 1".
+    // NOTE for reviewers: I found I could use the same rule structure
     [Theory]
     [InlineData(new[] { Item.A, Item.A, Item.A }, 100)]
     [InlineData(new[] { Item.B, Item.B, Item.B }, 60)]
@@ -91,14 +93,14 @@ public class CheckoutTests
         Assert.Equal(expectedTotal, checkout.Total);
     }
 
-    // Scenario "1.99 per pound"
+    // Scenario "1.99 per pound".
+    // NOTE for reviewers: I needed to introduce scanning/tracking item weights. Polymorphism to the rescue.
     [Theory]
     [InlineData(Item.A, 1, 1.99)]
     [InlineData(Item.A, 1.5, 2.98)] //Rounded to 2 decimal points
     [InlineData(Item.A, 2, 3.98)]
     public void Scan_WithPricePerPound_AddsRelativePrice(Item item, double weight, double expectedTotal)
     {
-
         var rules = new Dictionary<Item, ItemPrice>() {
             { Item.A, new ItemPrice(1.99) }, //per pound is my unit for this item
         };

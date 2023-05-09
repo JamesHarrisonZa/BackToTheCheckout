@@ -72,7 +72,7 @@ public class Checkout
         var specialQty = _rules[item].Special!.Quantity;
         var specialPrice = _rules[item].Special!.Price;
 
-        int specialCount = itemQty / specialQty;
+        var specialCount = itemQty / specialQty;
         var remainingCount = itemQty % specialQty;
 
         return specialCount * specialPrice + remainingCount * unitPrice;
