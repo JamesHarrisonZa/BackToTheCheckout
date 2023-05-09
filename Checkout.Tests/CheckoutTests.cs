@@ -92,8 +92,11 @@ public class CheckoutTests
     }
 
     // Scenario "1.99 per pound"
-    [Fact]
-    public void Scan_WithPricePerPound_AddsRelativePrice()
+    [Theory]
+    [InlineData(Item.A, 1, 1.99)]
+    [InlineData(Item.A, 1.5, 2.98)] //Rounded to 2 decimal points
+    [InlineData(Item.A, 2, 3.98)]
+    public void Scan_WithPricePerPound_AddsRelativePrice(Item item, double weight, double expectedTotal)
     {
 
         var rules = new Dictionary<Item, ItemPrice>() {
@@ -102,9 +105,8 @@ public class CheckoutTests
 
         var checkout = new Checkout(rules);
         
-        checkout.Scan(Item.A, 1);
-
-        var expectedTotal = 1.99d;
+        checkout.Scan(item, weight);
+        
         Assert.Equal(expectedTotal, checkout.Total);
     }
 }

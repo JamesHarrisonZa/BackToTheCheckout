@@ -28,7 +28,10 @@ public class Checkout
 
     public void Scan(Item item, double weight)
     {
-        Total += weight *GetItemUnitPrice(item);
+        var itemPrice = weight * GetItemUnitPrice(item);
+        var itemPriceRounded = Math.Round(itemPrice, 2);
+
+        Total += itemPriceRounded;
     }
 
     private void AddToScannedItems(Item item)
