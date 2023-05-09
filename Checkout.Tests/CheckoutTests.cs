@@ -111,4 +111,24 @@ public class CheckoutTests
         
         Assert.Equal(expectedTotal, checkout.Total);
     }
+
+    // Scenario price per pound with special".
+    // NOTE for reviewers: I needed to introduce scanning/tracking item weights. Polymorphism to the rescue.
+    [Theory]
+    [InlineData(Item.A, 1, 1.99)] //Just under special
+    [InlineData(Item.A, 3, 4.99)] //Matches special x1
+    [InlineData(Item.A, 5, 8.97)] //Special + remaining
+    [InlineData(Item.A, 6, 9.98)] //Matches special x2
+    public void Scan_WithPricePerPoundSpecial_AddsSpecialPrice(Item item, double weight, double expectedTotal)
+    {
+        var rules = new Dictionary<Item, ItemPrice>() {
+            { Item.A, new ItemPrice(1.99, new Special(3d, 4.99)) },
+        };
+
+        var checkout = new Checkout(rules);
+
+        checkout.Scan(item, weight);
+
+        Assert.Equal(expectedTotal, checkout.Total);
+    }
 }

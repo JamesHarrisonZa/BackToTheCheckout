@@ -42,9 +42,12 @@ public class Checkout
                 total += GetItemTotal(item, itemQty);
         }
 
-        foreach (var (item, itemWeight) in _scannedItemsWeight)
+        foreach (var (item, weight) in _scannedItemsWeight)
         {
-            total += GetItemTotal(item, itemWeight);
+            if (IsOnSpecial(item))
+                total += GetItemTotalWithSpecial(item, weight);
+            else
+                total += GetItemTotal(item, weight);
         }
 
         return total;
@@ -75,7 +78,19 @@ public class Checkout
         var specialCount = itemQty / specialQty;
         var remainingCount = itemQty % specialQty;
 
-        return specialCount * specialPrice + remainingCount * unitPrice;
+        return (specialCount * specialPrice) + (remainingCount * unitPrice);
+    }
+
+    private double GetItemTotalWithSpecial(Item item, double weight)
+    {
+        var unitPrice = _rules[item].UnitPrice;
+        var specialWeight = _rules[item].Special!.Weight;
+        var specialPrice = _rules[item].Special!.Price;
+
+        var specialCount = (int)(weight / specialWeight);
+        var remainingCount = weight % specialWeight;
+
+        return (specialCount * specialPrice) + (remainingCount * unitPrice);
     }
 
     private double GetItemTotal(Item item, int itemQty)
