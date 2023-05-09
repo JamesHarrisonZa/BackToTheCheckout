@@ -4,11 +4,12 @@ namespace Checkout;
 
 public class Checkout
 {
-    public double Total { get; private set; }
+    public double Total => CalculateTotal();
 
     private readonly IDictionary<Item, ItemPrice> _rules;
 
-    private readonly IDictionary<Item, int> _scannedItemsCount;
+    private readonly IDictionary<Item, int> _scannedItemsCount;  //PricePerItem
+    private readonly IDictionary<Item, double> _scannedItemsWeight; //PricePerWeight
 
     private const int RoundingPrecision = 2;
 
@@ -16,28 +17,37 @@ public class Checkout
     {
         _rules = rules;
         _scannedItemsCount = new Dictionary<Item, int>();
+        _scannedItemsWeight = new Dictionary<Item, double>();
     }
 
     public void Scan(Item item)
     {
         AddToScannedItems(item);
-
-        if (EligibleForDiscount(item))
-            Total += GetDiscountedPrice(item);
-        else
-            Total += GetItemUnitPrice(item);
     }
 
     public void Scan(Item item, double weight)
     {
-        Total += GetPriceForWeight(item, weight);
+        AddToScannedItems(item, weight);
     }
 
-    private double GetPriceForWeight(Item item, double weight)
+    private double CalculateTotal()
     {
-        var itemPrice = weight * GetItemUnitPrice(item);
-        var itemPriceRounded = Math.Round(itemPrice, RoundingPrecision);
-        return itemPriceRounded;
+        var total = 0d;
+
+        foreach (var (item, itemQty) in _scannedItemsCount)
+        {
+            if (IsOnSpecial(item))
+                total += GetItemTotalWithSpecial(item, itemQty);
+            else
+                total += GetItemTotal(item, itemQty);
+        }
+
+        foreach (var (item, itemWeight) in _scannedItemsWeight)
+        {
+            total += GetItemTotal(item, itemWeight);
+        }
+
+        return total;
     }
 
     private void AddToScannedItems(Item item)
@@ -48,42 +58,40 @@ public class Checkout
         _scannedItemsCount[item]++;
     }
 
-    private double GetItemUnitPrice(Item item)
+    private void AddToScannedItems(Item item, double weight)
     {
-        return _rules[item].UnitPrice;
+        if (!_scannedItemsWeight.ContainsKey(item))
+            _scannedItemsWeight.Add(item, 0);
+
+        _scannedItemsWeight[item]+= weight;
+    }
+    
+    private double GetItemTotalWithSpecial(Item item, int itemQty)
+    {
+        var unitPrice = _rules[item].UnitPrice;
+        var specialQty = _rules[item].Special!.Quantity;
+        var specialPrice = _rules[item].Special!.Price;
+
+        int specialCount = itemQty / specialQty;
+        var remainingCount = itemQty % specialQty;
+
+        return specialCount * specialPrice + remainingCount * unitPrice;
     }
 
-    private bool EligibleForDiscount(Item item)
+    private double GetItemTotal(Item item, int itemQty)
     {
-        if (!ItemOnSpecial(item))
-            return false;
-
-        var scannedItemQuantity = _scannedItemsCount[item];
-        var quantityEligibleForDiscount = _rules[item].Special!.Quantity;
-        var itemQuantityMatchesSpecial = scannedItemQuantity % quantityEligibleForDiscount == 0;
-
-        return itemQuantityMatchesSpecial;
+        return itemQty * _rules[item].UnitPrice;
     }
 
-    private bool ItemOnSpecial(Item item)
+    private double GetItemTotal(Item item, double itemWeight)
+    {
+        var itemPrice = itemWeight * _rules[item].UnitPrice;
+        var itemPriceRounded = Math.Round(itemPrice, RoundingPrecision);
+        return itemPriceRounded;
+    }
+
+    private bool IsOnSpecial(Item item)
     {
         return _rules[item].Special != null;
-    }
-
-    private double GetDiscountedPrice(Item item)
-    {
-        var specialPrice = GetItemsSpecialPrice(item);
-
-        return -1 * GetPriceAccountedForInTotal(item) + specialPrice;
-    }
-
-    private double GetItemsSpecialPrice(Item item)
-    {
-        return _rules[item].Special!.Price;
-    }
-
-    private double GetPriceAccountedForInTotal(Item item)
-    {
-        return _rules[item].UnitPrice * (_rules[item].Special!.Quantity - 1);
     }
 }
