@@ -8,14 +8,14 @@ public class Checkout
 
     private readonly IDictionary<Item, ItemPrice> _rules;
 
-    private readonly IDictionary<Item, int> _scannedItems;
+    private readonly IDictionary<Item, int> _scannedItemsCount;
 
     private const int RoundingPrecision = 2;
 
     public Checkout(IDictionary<Item, ItemPrice> rules)
     {
         _rules = rules;
-        _scannedItems = new Dictionary<Item, int>();
+        _scannedItemsCount = new Dictionary<Item, int>();
     }
 
     public void Scan(Item item)
@@ -42,10 +42,10 @@ public class Checkout
 
     private void AddToScannedItems(Item item)
     {
-        if (!_scannedItems.ContainsKey(item))
-            _scannedItems.Add(item, 0);
+        if (!_scannedItemsCount.ContainsKey(item))
+            _scannedItemsCount.Add(item, 0);
 
-        _scannedItems[item]++;
+        _scannedItemsCount[item]++;
     }
 
     private double GetItemUnitPrice(Item item)
@@ -58,7 +58,7 @@ public class Checkout
         if (!ItemOnSpecial(item))
             return false;
 
-        var scannedItemQuantity = _scannedItems[item];
+        var scannedItemQuantity = _scannedItemsCount[item];
         var quantityEligibleForDiscount = _rules[item].Special!.Quantity;
         var itemQuantityMatchesSpecial = scannedItemQuantity % quantityEligibleForDiscount == 0;
 
