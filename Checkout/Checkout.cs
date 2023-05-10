@@ -1,4 +1,5 @@
 ﻿using Checkout.Models;
+using Checkout.Exceptions;
 
 namespace Checkout;
 
@@ -55,6 +56,8 @@ public class Checkout
 
     private void AddToScannedItems(Item item)
     {
+        ValidateItemPriceRule(item);
+
         if (!_scannedItemsCount.ContainsKey(item))
             _scannedItemsCount.Add(item, 0);
 
@@ -63,12 +66,20 @@ public class Checkout
 
     private void AddToScannedItems(Item item, double weight)
     {
+        ValidateItemPriceRule(item);
+
         if (!_scannedItemsWeight.ContainsKey(item))
             _scannedItemsWeight.Add(item, 0);
 
         _scannedItemsWeight[item]+= weight;
     }
-    
+
+    private void ValidateItemPriceRule(Item item)
+    {
+        if (!_rules.ContainsKey(item))
+            throw new UnexpectedItemException(item);
+    }
+
     private double GetItemTotalWithSpecial(Item item, int itemQty)
     {
         var unitPrice = _rules[item].UnitPrice;
@@ -102,6 +113,7 @@ public class Checkout
     {
         var itemPrice = itemWeight * _rules[item].UnitPrice;
         var itemPriceRounded = Math.Round(itemPrice, RoundingPrecision);
+
         return itemPriceRounded;
     }
 

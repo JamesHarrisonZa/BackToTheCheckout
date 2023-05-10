@@ -1,4 +1,5 @@
 using Checkout.Models;
+using Checkout.Exceptions;
 
 namespace Checkout.Tests;
 
@@ -13,7 +14,7 @@ public class CheckoutTests
         Assert.Equal(0, checkout.Total);
     }
 
-    // Scenario no specials. Just unit prices.
+    // Scenario: no specials. Just unit prices.
     [Theory]
     [InlineData(new[] { Item.A }, 50)]
     [InlineData(new[] { Item.A, Item.B }, 80)]
@@ -27,7 +28,6 @@ public class CheckoutTests
             { Item.C, new ItemPrice(20) },
             { Item.D, new ItemPrice(15) },
         };
-
         var checkout = new Checkout(rules);
 
         foreach (var item in goods)
@@ -38,7 +38,7 @@ public class CheckoutTests
         Assert.Equal(expectedTotal, checkout.Total);
     }
 
-    // Scenario "Three for a dollar" type specials.
+    // Scenario: "Three for a dollar" type specials.
     [Theory]
     [InlineData(new[] { Item.A, Item.A }, 100)]
     [InlineData(new[] { Item.A, Item.A, Item.A }, 130)] //EligibleForSpecial A x1
@@ -56,7 +56,6 @@ public class CheckoutTests
             { Item.C, new ItemPrice(20) },
             { Item.D, new ItemPrice(15) },
         };
-
         var checkout = new Checkout(rules);
 
         foreach (var item in goods)
@@ -67,7 +66,7 @@ public class CheckoutTests
         Assert.Equal(expectedTotal, checkout.Total);
     }
 
-    // Scenario "2 for 1".
+    // Scenario: "2 for 1".
     // NOTE for reviewers: I found I could use the same rule structure
     [Theory]
     [InlineData(new[] { Item.A, Item.A, Item.A }, 100)]
@@ -82,7 +81,6 @@ public class CheckoutTests
             { Item.C, new ItemPrice(20, new Special(3, 40)) },
             { Item.D, new ItemPrice(15, new Special(3, 30)) },
         };
-
         var checkout = new Checkout(rules);
 
         foreach (var item in goods)
@@ -93,7 +91,7 @@ public class CheckoutTests
         Assert.Equal(expectedTotal, checkout.Total);
     }
 
-    // Scenario "1.99 per pound".
+    // Scenario: "1.99 per pound".
     // NOTE for reviewers: I needed to introduce scanning/tracking item weights. Polymorphism to the rescue.
     [Theory]
     [InlineData(Item.A, 1, 1.99)]
@@ -104,15 +102,14 @@ public class CheckoutTests
         var rules = new Dictionary<Item, ItemPrice>() {
             { Item.A, new ItemPrice(1.99) }, //per pound is my unit for this item
         };
-
         var checkout = new Checkout(rules);
-        
+
         checkout.Scan(item, weight);
         
         Assert.Equal(expectedTotal, checkout.Total);
     }
 
-    // Scenario price per pound with special".
+    // Scenario: price per pound with special".
     // NOTE for reviewers: I needed to introduce scanning/tracking item weights. Polymorphism to the rescue.
     [Theory]
     [InlineData(Item.A, 1, 1.99)] //Just under special
@@ -124,11 +121,39 @@ public class CheckoutTests
         var rules = new Dictionary<Item, ItemPrice>() {
             { Item.A, new ItemPrice(1.99, new Special(3d, 4.99)) },
         };
-
         var checkout = new Checkout(rules);
 
         checkout.Scan(item, weight);
 
         Assert.Equal(expectedTotal, checkout.Total);
+    }
+
+    // Scenario: Scanning an item that we don't have a rule for
+    [Fact]
+    public void Scan_WithUnexpectedItem_ThrowsUnexpectedItemException()
+    {
+        var unexpectedItem = Item.A;
+        var rules = new Dictionary<Item, ItemPrice>() {};
+        var checkout = new Checkout(rules);
+
+        var exception = Assert.Throws<UnexpectedItemException>(() => checkout.Scan(unexpectedItem));
+
+        var expectedMessage = $"Unexpected Item: {unexpectedItem}. Missing from pricing rules.";
+        Assert.Equal(expectedMessage, exception.Message);
+    }
+
+    // Scenario: Scanning an item with weight that we don't have a rule for
+    [Fact]
+    public void Scan_WithUnexpectedItemWithWeight_ThrowsUnexpectedItemException()
+    {
+        var unexpectedItem = Item.A;
+        var itemWeight = 42;
+        var rules = new Dictionary<Item, ItemPrice>() { };
+        var checkout = new Checkout(rules);
+
+        var exception = Assert.Throws<UnexpectedItemException>(() => checkout.Scan(unexpectedItem, itemWeight));
+
+        var expectedMessage = $"Unexpected Item: {unexpectedItem}. Missing from pricing rules.";
+        Assert.Equal(expectedMessage, exception.Message);
     }
 }
