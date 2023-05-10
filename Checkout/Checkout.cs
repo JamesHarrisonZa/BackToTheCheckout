@@ -5,8 +5,6 @@ namespace Checkout;
 
 public class Checkout
 {
-    public double Total => CalculateTotal();
-
     private readonly IDictionary<Item, ItemPrice> _rules;
 
     private readonly IDictionary<Item, int> _scannedItemsCount;  //PricePerItem
@@ -31,7 +29,7 @@ public class Checkout
         AddToScannedItems(item, weight);
     }
 
-    private double CalculateTotal()
+    public double CalculateTotal()
     {
         var total = 0d;
 

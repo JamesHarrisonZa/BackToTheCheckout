@@ -11,7 +11,7 @@ public class CheckoutTests
         var rules = new Dictionary<Item, ItemPrice>() { };
         var checkout = new Checkout(rules);
 
-        Assert.Equal(0, checkout.Total);
+        Assert.Equal(0, checkout.CalculateTotal());
     }
 
     // Scenario: no specials. Just unit prices.
@@ -35,7 +35,7 @@ public class CheckoutTests
             checkout.Scan(item);
         }
 
-        Assert.Equal(expectedTotal, checkout.Total);
+        Assert.Equal(expectedTotal, checkout.CalculateTotal());
     }
 
     // Scenario: "Three for a dollar" type specials.
@@ -63,7 +63,7 @@ public class CheckoutTests
             checkout.Scan(item);
         }
 
-        Assert.Equal(expectedTotal, checkout.Total);
+        Assert.Equal(expectedTotal, checkout.CalculateTotal());
     }
 
     // Scenario: "2 for 1".
@@ -88,7 +88,7 @@ public class CheckoutTests
             checkout.Scan(item);
         }
 
-        Assert.Equal(expectedTotal, checkout.Total);
+        Assert.Equal(expectedTotal, checkout.CalculateTotal());
     }
 
     // Scenario: "1.99 per pound".
@@ -106,7 +106,7 @@ public class CheckoutTests
 
         checkout.Scan(item, weight);
         
-        Assert.Equal(expectedTotal, checkout.Total);
+        Assert.Equal(expectedTotal, checkout.CalculateTotal());
     }
 
     // Scenario: price per pound with special".
@@ -125,7 +125,7 @@ public class CheckoutTests
 
         checkout.Scan(item, weight);
 
-        Assert.Equal(expectedTotal, checkout.Total);
+        Assert.Equal(expectedTotal, checkout.CalculateTotal());
     }
 
     // Scenario: Scanning an item that we don't have a rule for
