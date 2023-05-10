@@ -92,7 +92,7 @@ public class CheckoutTests
     }
 
     // Scenario: "1.99 per pound".
-    // NOTE for reviewers: I needed to introduce scanning/tracking item weights. Polymorphism to the rescue.
+    // NOTE for reviewers: I needed to introduce scanning/tracking item weights.
     [Theory]
     [InlineData(Item.A, 1, 1.99)]
     [InlineData(Item.A, 1.5, 2.98)] //Rounded to 2 decimal points
@@ -110,7 +110,7 @@ public class CheckoutTests
     }
 
     // Scenario: price per pound with special".
-    // NOTE for reviewers: I needed to introduce scanning/tracking item weights. Polymorphism to the rescue.
+    // NOTE for reviewers: I needed to introduce scanning/tracking item weights.
     [Theory]
     [InlineData(Item.A, 1, 1.99)] //Just under special
     [InlineData(Item.A, 3, 4.99)] //Matches special x1
