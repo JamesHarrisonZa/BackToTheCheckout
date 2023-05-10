@@ -156,4 +156,23 @@ public class CheckoutTests
         var expectedMessage = $"Unexpected Item: {unexpectedItem}. Missing from pricing rules.";
         Assert.Equal(expectedMessage, exception.Message);
     }
+
+    // Scenario: Scanning an item's weight that is zero or negative
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Scan_WithInvalidWeight_ThrowsInvalidWeightException(double invalidWeight)
+    {
+        var item = Item.A;
+        var rules = new Dictionary<Item, ItemPrice>()
+        {
+            { Item.A, new ItemPrice(50) },
+        };
+        var checkout = new Checkout(rules);
+
+        var exception = Assert.Throws<InvalidWeightException>(() => checkout.Scan(item, invalidWeight));
+
+        var expectedMessage = $"Invalid weight: {invalidWeight} for {item}.";
+        Assert.Equal(expectedMessage, exception.Message);
+    }
 }

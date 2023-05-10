@@ -67,6 +67,7 @@ public class Checkout
     private void AddToScannedItems(Item item, double weight)
     {
         ValidateItemPriceRule(item);
+        ValidateItemWeight(item, weight);
 
         if (!_scannedItemsWeight.ContainsKey(item))
             _scannedItemsWeight.Add(item, 0);
@@ -78,6 +79,12 @@ public class Checkout
     {
         if (!_rules.ContainsKey(item))
             throw new UnexpectedItemException(item);
+    }
+
+    private void ValidateItemWeight(Item item, double weight)
+    {
+        if (weight <= 0)
+            throw new InvalidWeightException(item, weight);
     }
 
     private double GetItemTotalWithSpecial(Item item, int itemQty)
